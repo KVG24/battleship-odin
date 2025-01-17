@@ -1,0 +1,7 @@
+.content {
+    content: "TEST";
+    background-color: grey;
+    width: 300px;
+    height: 300px;
+    margin: 200px auto;
+}
