@@ -1,2 +1,3 @@
-# template
-Template for new repo
+# Battleship
+
+### The Odin Project Assignment
