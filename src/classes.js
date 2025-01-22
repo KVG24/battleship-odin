@@ -91,3 +91,11 @@ export class Gameboard {
         return this.ships.every(({ ship }) => ship.isSunk());
     }
 }
+
+export class Player {
+    constructor(name, type) {
+        this.name = name;
+        this.type = type;
+        this.gameboard = new Gameboard();
+    }
+}
