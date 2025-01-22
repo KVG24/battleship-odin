@@ -38,6 +38,45 @@ main {
     width: 100%;
 }
 
+.game-container,
+.gameboard {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+}
+
+.gameboards-container {
+    display: flex;
+    gap: 100px;
+}
+
+#human-gameboard,
+#computer-gameboard {
+    width: 400px;
+    height: 400px;
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+}
+
+.name {
+    color: white;
+    font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+    font-size: 2rem;
+}
+
+.cell {
+    width: 40px;
+    height: 40px;
+    background-color: white;
+    border: 1px solid black;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 footer {
     background-color: rgb(46, 61, 94);
     width: 100%;
@@ -46,4 +85,5 @@ footer {
     justify-content: center;
     align-items: center;
     color: white;
+    font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
 }
