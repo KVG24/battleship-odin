@@ -75,6 +75,11 @@ main {
     display: flex;
     justify-content: center;
     align-items: center;
+    cursor: crosshair;
+}
+
+.enemy-cell:hover {
+    background-color: rgb(224, 224, 224);
 }
 
 footer {
