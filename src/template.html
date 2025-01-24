@@ -11,15 +11,22 @@
                 <h1>Battleship</h1>
             </header>
             <main>
+                <div class="modal-container">
+                    <div class="game-over-modal">
+                        <h1>Game Over</h1>
+                        <h2 id="winner-message"></h2>
+                        <button type="button" id="restart">RESTART</button>
+                    </div>
+                </div>
                 <div class="game-container">
                     <div class="gameboards-container">
                         <div class="gameboard">
-                            <div id="human-name" class="name"></div>
-                            <div id="human-gameboard" class="board"></div>
+                            <div id="player-one-name" class="name"></div>
+                            <div id="player-one-gameboard" class="board"></div>
                         </div>
                         <div class="gameboard">
-                            <div id="computer-name" class="name"></div>
-                            <div id="computer-gameboard" class="board"></div>
+                            <div id="player-two-name" class="name"></div>
+                            <div id="player-two-gameboard" class="board"></div>
                         </div>
                     </div>
                     <div class="ships-for-placement-container"></div>
