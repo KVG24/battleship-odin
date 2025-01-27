@@ -16,7 +16,7 @@ export class Ship {
     }
 }
 
-export class Gameboard {
+class Gameboard {
     constructor() {
         this.missedAttacks = [];
         this.ships = [];
@@ -57,6 +57,7 @@ export class Gameboard {
             return false;
         }
 
+        const coordinates = [];
         for (let i = 0; i < ship.length; i++) {
             let x, y;
             if (direction === "horizontal") {
@@ -69,6 +70,34 @@ export class Gameboard {
 
             if (this.board[x][y] !== null) {
                 return false;
+            }
+
+            coordinates.push([x, y]);
+        }
+
+        // Check neighboring cells
+        for (let [x, y] of coordinates) {
+            for (let i = -1; i <= 1; i++) {
+                for (let j = -1; j <= 1; j++) {
+                    const checkX = x + i;
+                    const checkY = y + j;
+
+                    // Ensure we are within bounds of the board
+                    if (
+                        checkX >= 0 &&
+                        checkX < 10 &&
+                        checkY >= 0 &&
+                        checkY < 10
+                    ) {
+                        // Skip checking the ship's own coordinates
+                        if (i === 0 && j === 0) continue;
+
+                        // If the surrounding cell is not empty, the placement is invalid
+                        if (this.board[checkX][checkY] !== null) {
+                            return false;
+                        }
+                    }
+                }
             }
         }
 
