@@ -68,10 +68,10 @@ export function renderGameboard(
                 playerOneGameboard.replaceChildren();
                 playerTwo.gameboard.receiveAttack(y, x);
                 renderGameboard(
-                    playerTwo,
-                    playerTwoGameboard,
                     playerOne,
-                    playerOneGameboard
+                    playerOneGameboard,
+                    playerTwo,
+                    playerTwoGameboard
                 );
 
                 isPlayerTurn = false;
@@ -114,8 +114,8 @@ function computerTurn(
         playerOne.gameboard.board[y][x] === "hit"
     );
 
-    playerTwoGameboard.replaceChildren();
     playerOneGameboard.replaceChildren();
+    playerTwoGameboard.replaceChildren();
     playerOne.gameboard.receiveAttack(y, x);
     renderGameboard(
         playerOne,
