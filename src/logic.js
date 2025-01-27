@@ -64,8 +64,8 @@ export function renderGameboard(
             div.addEventListener("click", () => {
                 if (!isPlayerTurn || cell === "miss" || cell === "hit") return;
 
-                playerTwoGameboard.replaceChildren();
                 playerOneGameboard.replaceChildren();
+                playerTwoGameboard.replaceChildren();
                 playerTwo.gameboard.receiveAttack(y, x);
                 renderGameboard(
                     playerOne,
@@ -88,13 +88,7 @@ export function renderGameboard(
             playerTwoGameboard.appendChild(div);
         });
     });
-    if (playerTwo.gameboard.allShipsSunk()) {
-        gameOverModal.style.display = "block";
-        winnerMsg.textContent = `${playerOne.name} won!`;
-    } else if (playerOne.gameboard.allShipsSunk()) {
-        gameOverModal.style.display = "block";
-        winnerMsg.textContent = `${playerTwo.name} won!`;
-    }
+    checkGameOver(playerOne, playerTwo, gameOverModal, winnerMsg);
 }
 
 // Computer's logic
@@ -125,4 +119,15 @@ function computerTurn(
     );
 
     isPlayerTurn = true;
+}
+
+// Game over logic
+export function checkGameOver(playerOne, playerTwo, modalDiv, messageDiv) {
+    if (playerTwo.gameboard.allShipsSunk()) {
+        modalDiv.style.display = "block";
+        messageDiv.textContent = `${playerOne.name} won!`;
+    } else if (playerOne.gameboard.allShipsSunk()) {
+        modalDiv.style.display = "block";
+        messageDiv.textContent = `${playerTwo.name} won!`;
+    }
 }
