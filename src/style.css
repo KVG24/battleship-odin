@@ -82,6 +82,16 @@ main {
     background-color: rgb(224, 224, 224);
 }
 
+.info {
+    height: 50px;
+}
+
+#info-msg {
+    font-size: 1.5rem;
+    color: white;
+    font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+}
+
 footer {
     background-color: rgb(46, 61, 94);
     width: 100%;

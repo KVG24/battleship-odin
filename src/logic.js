@@ -6,6 +6,8 @@ restartBtn.addEventListener("click", () => {
     window.location.reload();
 });
 
+const infoMsg = document.getElementById("info-msg");
+
 let isPlayerTurn = true;
 
 export function renderGameboard(
@@ -77,8 +79,12 @@ export function renderGameboard(
                 );
                 const newArray = playerTwo.gameboard.missedAttacks.length;
 
+                infoMsg.textContent = `${playerOne.name} hit ${playerTwo.name}'s ship. ${playerOne.name} moving again`;
+
                 if (newArray > prevArray) {
                     isPlayerTurn = false;
+
+                    infoMsg.textContent = `${playerOne.name} missed. ${playerTwo.name} aiming...`;
 
                     setTimeout(() => {
                         computerTurn(
@@ -87,7 +93,7 @@ export function renderGameboard(
                             playerTwo,
                             playerTwoGameboard
                         );
-                    }, 500);
+                    }, 1000);
                 }
             });
             playerTwoGameboard.appendChild(div);
@@ -126,7 +132,10 @@ function computerTurn(
     );
     const newArray = playerOne.gameboard.missedAttacks.length;
 
+    infoMsg.textContent = `${playerTwo.name} missed. ${playerOne.name} aiming...`;
+
     if (newArray == prevArray) {
+        infoMsg.textContent = `${playerTwo.name} hit ${playerOne.name}'s ship. ${playerTwo.name} moving again`;
         setTimeout(() => {
             computerTurn(
                 playerOne,
@@ -134,8 +143,9 @@ function computerTurn(
                 playerTwo,
                 playerTwoGameboard
             );
-        }, 1000);
+        }, 2000);
     }
+
     isPlayerTurn = true;
 }
 
