@@ -66,6 +66,8 @@ export function renderGameboard(
 
                 playerOneGameboard.replaceChildren();
                 playerTwoGameboard.replaceChildren();
+
+                const prevArray = playerTwo.gameboard.missedAttacks.length;
                 playerTwo.gameboard.receiveAttack(y, x);
                 renderGameboard(
                     playerOne,
@@ -73,17 +75,20 @@ export function renderGameboard(
                     playerTwo,
                     playerTwoGameboard
                 );
+                const newArray = playerTwo.gameboard.missedAttacks.length;
 
-                isPlayerTurn = false;
+                if (newArray > prevArray) {
+                    isPlayerTurn = false;
 
-                setTimeout(() => {
-                    computerTurn(
-                        playerOne,
-                        playerOneGameboard,
-                        playerTwo,
-                        playerTwoGameboard
-                    );
-                }, 500);
+                    setTimeout(() => {
+                        computerTurn(
+                            playerOne,
+                            playerOneGameboard,
+                            playerTwo,
+                            playerTwoGameboard
+                        );
+                    }, 500);
+                }
             });
             playerTwoGameboard.appendChild(div);
         });
@@ -110,6 +115,8 @@ function computerTurn(
 
     playerOneGameboard.replaceChildren();
     playerTwoGameboard.replaceChildren();
+
+    const prevArray = playerOne.gameboard.missedAttacks.length;
     playerOne.gameboard.receiveAttack(y, x);
     renderGameboard(
         playerOne,
@@ -117,7 +124,18 @@ function computerTurn(
         playerTwo,
         playerTwoGameboard
     );
+    const newArray = playerOne.gameboard.missedAttacks.length;
 
+    if (newArray == prevArray) {
+        setTimeout(() => {
+            computerTurn(
+                playerOne,
+                playerOneGameboard,
+                playerTwo,
+                playerTwoGameboard
+            );
+        }, 1000);
+    }
     isPlayerTurn = true;
 }
 
