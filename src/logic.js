@@ -11,18 +11,20 @@ const enterNameModal = document.querySelector(".enter-name-modal");
 const inputName = document.getElementById("name");
 const enterNameButton = document.getElementById("enter-name-button");
 
-// Gameboard preview / ship placement modal
+// Ship placement modal
 const gameBoardPreviewModal = document.querySelector(
     ".gameboard-preview-modal"
 );
 const playerGameboardPreview = document.querySelector(
     ".player-gameboard-preview"
 );
+const previewCells = playerGameboardPreview.children;
 const flipButton = document.getElementById("flip-button");
 const startButton = document.getElementById("start-button");
 const shipsForPlacementContainer = document.querySelector(
     ".ships-for-placement-container"
 );
+const placementErrorMsg = document.getElementById("placement-error");
 const everyShipInContainer = document.querySelectorAll(".ship");
 const corvetteShipDiv = document.getElementById("corvette");
 const submarineShipDiv = document.getElementById("submarine");
@@ -30,16 +32,9 @@ const cruiserShipDiv = document.getElementById("cruiser");
 const frigateShipDiv = document.getElementById("frigate");
 const carrierShipDiv = document.getElementById("carrier");
 
-// Game Over modal
-const gameOverModal = document.querySelector(".modal-container");
-const winnerMsg = document.getElementById("winner-message");
-const restartBtn = document.getElementById("restart");
-restartBtn.addEventListener("click", () => {
-    window.location.reload();
-});
-
 let isPlayerTurn = true;
 let previewAngle = 0;
+let draggedShip;
 
 export function newGame() {
     // Enter name modal
@@ -48,64 +43,105 @@ export function newGame() {
         enterNameModal.style.display = "none";
         const playerOne = new Player(`${inputName.value}`, "real");
         const playerTwo = new Player("Computer", "computer");
+        placeShipRandomly(playerTwo, new Ship("Corvette", 2));
+        placeShipRandomly(playerTwo, new Ship("Submarine", 3));
+        placeShipRandomly(playerTwo, new Ship("Cruiser", 3));
+        placeShipRandomly(playerTwo, new Ship("Frigate", 4));
+        placeShipRandomly(playerTwo, new Ship("Carrier", 5));
 
         // Ship placement modal
         gameBoardPreviewModal.style.display = "block";
-        playerOne.gameboard.board.forEach((subarray, y) => {
-            subarray.forEach((cell, x) => {
-                const div = document.createElement("div");
-
-                div.classList.add("cell");
-
-                if (cell === null) {
-                    div.textContent = "";
-                } else if (typeof cell === "object") {
-                    div.style.backgroundColor = "gray";
-                } else if (cell === "miss") {
-                    div.textContent = "🫧";
-                } else if (cell === "hit") {
-                    div.textContent = "🔥";
-                    div.style.backgroundColor = "gray";
-                }
-
-                div.setAttribute("data-x", x);
-                div.setAttribute("data-y", y);
-
-                playerGameboardPreview.appendChild(div);
-
-                flipButton.addEventListener("click", flipPreviewShips);
-                startButton.addEventListener("click", () => {
-                    gameBoardPreviewModal.style.display = "none";
-                    renderGameboard(
-                        playerOne,
-                        playerOneGameboardDiv,
-                        playerTwo,
-                        playerTwoGameboardDiv
-                    );
-                });
+        everyShipInContainer.forEach((ship) => {
+            ship.addEventListener("dragstart", (e) => {
+                draggedShip = e.target;
             });
+        });
+        renderPreviewGameboard(playerOne, playerGameboardPreview);
+        attachPreviewShipEventListeners(playerOne);
+        flipButton.addEventListener("click", flipPreviewShips);
+        startButton.addEventListener("click", () => {
+            gameBoardPreviewModal.style.display = "none";
+            playerOneName.textContent = playerOne.name;
+            playerTwoName.textContent = playerTwo.name;
+            renderGameboards(
+                playerOne,
+                playerOneGameboardDiv,
+                playerTwo,
+                playerTwoGameboardDiv
+            );
         });
     });
 }
 
-function flipPreviewShips() {
-    previewAngle = previewAngle === 0 ? 90 : 0;
-    everyShipInContainer.forEach(
-        (div) => (div.style.transform = `rotate(${previewAngle}deg)`)
-    );
+function dropShip(e, player) {
+    e.preventDefault();
+    const targetCell = e.target;
+    const shipId = draggedShip.id;
+    let x = parseInt(targetCell.dataset.x);
+    let y = parseInt(targetCell.dataset.y);
+    let direction = previewAngle === 0 ? "horizontal" : "vertical";
+
+    if (!shipId) return;
+
+    try {
+        if (shipId === "corvette") {
+            player.gameboard.placeShip(
+                new Ship("Corvette", 2),
+                x,
+                y,
+                direction
+            );
+            corvetteShipDiv.style.display = "none";
+            placementErrorMsg.style.display = "none";
+        }
+        if (shipId === "submarine") {
+            player.gameboard.placeShip(
+                new Ship("Submarine", 3),
+                x,
+                y,
+                direction
+            );
+            submarineShipDiv.style.display = "none";
+            placementErrorMsg.style.display = "none";
+        }
+        if (shipId === "cruiser") {
+            player.gameboard.placeShip(new Ship("Cruiser", 3), x, y, direction);
+            cruiserShipDiv.style.display = "none";
+            placementErrorMsg.style.display = "none";
+        }
+        if (shipId === "frigate") {
+            player.gameboard.placeShip(new Ship("Frigate", 4), x, y, direction);
+            frigateShipDiv.style.display = "none";
+            placementErrorMsg.style.display = "none";
+        }
+        if (shipId === "carrier") {
+            player.gameboard.placeShip(new Ship("Carrier", 5), x, y, direction);
+            carrierShipDiv.style.display = "none";
+            placementErrorMsg.style.display = "none";
+        }
+
+        renderPreviewGameboard(player, playerGameboardPreview);
+        attachPreviewShipEventListeners(player);
+    } catch (error) {
+        console.error("Invalid placement:", error.message);
+        placementErrorMsg.style.display = "block";
+        placementErrorMsg.textContent = "Invalid placement";
+    }
 }
 
-function renderGameboard(
-    playerOne,
-    playerOneGameboard,
-    playerTwo,
-    playerTwoGameboard
-) {
-    const playerOneGameboardDiv = playerOne.gameboard.board;
-    const playerTwoGameboardDiv = playerTwo.gameboard.board;
+function attachPreviewShipEventListeners(player) {
+    Array.from(previewCells).forEach((cell) => {
+        cell.addEventListener("dragover", (e) => e.preventDefault());
+        cell.addEventListener("drop", (e) => {
+            dropShip(e, player);
+        });
+    });
+}
 
-    playerOneGameboardDiv.forEach((subarray, y) => {
-        subarray.forEach((cell, x) => {
+function renderPreviewGameboard(player, playerGameboard) {
+    playerGameboard.replaceChildren();
+    player.gameboard.board.forEach((subarray, x) => {
+        subarray.forEach((cell, y) => {
             const div = document.createElement("div");
 
             div.classList.add("cell");
@@ -121,14 +157,55 @@ function renderGameboard(
                 div.style.backgroundColor = "gray";
             }
 
-            div.setAttribute("data-x", x);
-            div.setAttribute("data-y", y);
+            div.dataset.x = x;
+            div.dataset.y = y;
+
+            playerGameboard.appendChild(div);
+        });
+    });
+}
+
+function flipPreviewShips() {
+    previewAngle = previewAngle === 0 ? 90 : 0;
+    everyShipInContainer.forEach(
+        (div) => (div.style.transform = `rotate(${previewAngle}deg)`)
+    );
+}
+
+function renderGameboards(
+    playerOne,
+    playerOneGameboard,
+    playerTwo,
+    playerTwoGameboard
+) {
+    const playerOneGameboardDiv = playerOne.gameboard.board;
+    const playerTwoGameboardDiv = playerTwo.gameboard.board;
+
+    playerOneGameboardDiv.forEach((subarray, x) => {
+        subarray.forEach((cell, y) => {
+            const div = document.createElement("div");
+
+            div.classList.add("cell");
+
+            if (cell === null) {
+                div.textContent = "";
+            } else if (typeof cell === "object") {
+                div.style.backgroundColor = "gray";
+            } else if (cell === "miss") {
+                div.textContent = "🫧";
+            } else if (cell === "hit") {
+                div.textContent = "🔥";
+                div.style.backgroundColor = "gray";
+            }
+
+            div.dataset.x = x;
+            div.dataset.y = y;
 
             playerOneGameboard.appendChild(div);
         });
     });
-    playerTwoGameboardDiv.forEach((subarray, y) => {
-        subarray.forEach((cell, x) => {
+    playerTwoGameboardDiv.forEach((subarray, x) => {
+        subarray.forEach((cell, y) => {
             const div = document.createElement("div");
 
             div.classList.add("cell");
@@ -145,8 +222,8 @@ function renderGameboard(
                 div.style.backgroundColor = "gray";
             } // remove last "else if" after testing
 
-            div.setAttribute("data-x", x);
-            div.setAttribute("data-y", y);
+            div.dataset.x = x;
+            div.dataset.y = y;
 
             div.addEventListener("click", () => {
                 if (!isPlayerTurn || cell === "miss" || cell === "hit") return;
@@ -155,8 +232,8 @@ function renderGameboard(
                 playerTwoGameboard.replaceChildren();
 
                 const prevArray = playerTwo.gameboard.missedAttacks.length;
-                playerTwo.gameboard.receiveAttack(y, x);
-                renderGameboard(
+                playerTwo.gameboard.receiveAttack(x, y);
+                renderGameboards(
                     playerOne,
                     playerOneGameboard,
                     playerTwo,
@@ -209,7 +286,7 @@ function computerTurn(
 
     const prevArray = playerOne.gameboard.missedAttacks.length;
     playerOne.gameboard.receiveAttack(y, x);
-    renderGameboard(
+    renderGameboards(
         playerOne,
         playerOneGameboard,
         playerTwo,
@@ -266,3 +343,12 @@ export function checkGameOver(playerOne, playerTwo, modalDiv, messageDiv) {
         messageDiv.textContent = `${playerTwo.name} won!`;
     }
 }
+
+// Game Over modal
+const gameOverModal = document.querySelector(".modal-container");
+const winnerMsg = document.getElementById("winner-message");
+const restartBtn = document.getElementById("restart");
+restartBtn.addEventListener("click", () => {
+    gameOverModal.style.display = "none";
+    newGame();
+});
