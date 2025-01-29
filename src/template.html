@@ -32,7 +32,66 @@
                     <div class="info">
                         <p id="info-msg"></p>
                     </div>
-                    <div class="ships-for-placement-container"></div>
+                    <div class="enter-name-modal">
+                        <label for="name">Enter your name:</label>
+                        <input type="text" id="name" />
+                        <button type="button" id="enter-name-button">
+                            ENTER
+                        </button>
+                    </div>
+                    <div class="gameboard-preview-modal">
+                        <div class="gameboard-preview-container">
+                            <p id="placement-message">
+                                Place you ships (drag and drop)
+                            </p>
+                            <div class="player-gameboard-preview"></div>
+                            <div class="buttons">
+                                <button type="button" id="flip-button">
+                                    FLIP
+                                </button>
+                                <button type="button" id="start-button">
+                                    START
+                                </button>
+                            </div>
+                            <div class="ships-for-placement-container">
+                                <div
+                                    class="ship"
+                                    id="corvette"
+                                    draggable="true"
+                                >
+                                    <div class="cell preview"></div>
+                                    <div class="cell preview"></div>
+                                </div>
+                                <div
+                                    class="ship"
+                                    id="submarine"
+                                    draggable="true"
+                                >
+                                    <div class="cell preview"></div>
+                                    <div class="cell preview"></div>
+                                    <div class="cell preview"></div>
+                                </div>
+                                <div class="ship" id="cruiser" draggable="true">
+                                    <div class="cell preview"></div>
+                                    <div class="cell preview"></div>
+                                    <div class="cell preview"></div>
+                                </div>
+                                <div class="ship" id="frigate" draggable="true">
+                                    <div class="cell preview"></div>
+                                    <div class="cell preview"></div>
+                                    <div class="cell preview"></div>
+                                    <div class="cell preview"></div>
+                                </div>
+                                <div class="ship" id="carrier" draggable="true">
+                                    <div class="cell preview"></div>
+                                    <div class="cell preview"></div>
+                                    <div class="cell preview"></div>
+                                    <div class="cell preview"></div>
+                                    <div class="cell preview"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </main>
             <footer>

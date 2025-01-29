@@ -53,7 +53,8 @@ main {
 }
 
 #player-one-gameboard,
-#player-two-gameboard {
+#player-two-gameboard,
+.player-gameboard-preview {
     width: 400px;
     height: 400px;
     display: grid;
@@ -78,12 +79,105 @@ main {
     cursor: crosshair;
 }
 
+.enter-name-modal {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgb(25, 36, 59);
+    padding: 20px;
+    border: 1px solid white;
+    border-radius: 5px;
+}
+
+.enter-name-modal * {
+    margin: 5px;
+}
+
+.enter-name-modal button {
+    width: 70px;
+    height: 25px;
+    font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+    font-size: 1em;
+}
+
+.enter-name-modal input {
+    width: 130px;
+    height: 20px;
+    font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+    font-size: 1em;
+}
+
+label {
+    font-size: 1em;
+    font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.gameboard-preview-modal {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgb(25, 36, 59);
+    padding: 10px;
+    border: 1px solid white;
+    border-radius: 5px;
+}
+
+.gameboard-preview-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.ships-for-placement-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 800px;
+    height: 200px;
+    border: 1px solid white;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+#placement-message {
+    color: white;
+    font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+    font-size: 2em;
+    height: 40px;
+    margin: 10px 0 0 0;
+}
+
+.preview {
+    background-color: gray;
+}
+
+.ship {
+    display: flex;
+}
+
 .enemy-cell:hover {
     background-color: rgb(224, 224, 224);
 }
 
 .info {
     height: 50px;
+}
+
+.buttons button {
+    width: 100px;
+    height: 30px;
+    font-size: 1em;
+    font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
 }
 
 #info-msg {
