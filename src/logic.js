@@ -21,9 +21,6 @@ const playerGameboardPreview = document.querySelector(
 const previewCells = playerGameboardPreview.children;
 const flipButton = document.getElementById("flip-button");
 const startButton = document.getElementById("start-button");
-const shipsForPlacementContainer = document.querySelector(
-    ".ships-for-placement-container"
-);
 const placementErrorMsg = document.getElementById("placement-error");
 const everyShipInContainer = document.querySelectorAll(".ship");
 const corvetteShipDiv = document.getElementById("corvette");
@@ -36,13 +33,16 @@ let isPlayerTurn = true;
 let previewAngle = 0;
 let draggedShip;
 
+let playerOne = new Player(`Human`, "real");
+let playerTwo = new Player("Computer", "computer");
+
 export function newGame() {
     // Enter name modal
     enterNameModal.style.display = "flex";
     enterNameButton.addEventListener("click", () => {
         enterNameModal.style.display = "none";
-        const playerOne = new Player(`${inputName.value}`, "real");
-        const playerTwo = new Player("Computer", "computer");
+        playerOne = new Player(`${inputName.value}`, "real");
+        playerTwo = new Player("Computer", "computer");
         placeShipRandomly(playerTwo, new Ship("Corvette", 2));
         placeShipRandomly(playerTwo, new Ship("Submarine", 3));
         placeShipRandomly(playerTwo, new Ship("Cruiser", 3));
@@ -63,6 +63,8 @@ export function newGame() {
             gameBoardPreviewModal.style.display = "none";
             playerOneName.textContent = playerOne.name;
             playerTwoName.textContent = playerTwo.name;
+            playerOneGameboardDiv.replaceChildren();
+            playerTwoGameboardDiv.replaceChildren();
             renderGameboards(
                 playerOne,
                 playerOneGameboardDiv,
@@ -311,7 +313,7 @@ function computerTurn(
     isPlayerTurn = true;
 }
 
-export function placeShipRandomly(player, ship) {
+function placeShipRandomly(player, ship) {
     let placed = false;
 
     while (!placed) {
@@ -334,7 +336,7 @@ function getRandomCoordinatesAndDirection() {
 }
 
 // Game over logic
-export function checkGameOver(playerOne, playerTwo, modalDiv, messageDiv) {
+function checkGameOver(playerOne, playerTwo, modalDiv, messageDiv) {
     if (playerTwo.gameboard.allShipsSunk()) {
         modalDiv.style.display = "block";
         messageDiv.textContent = `${playerOne.name} won!`;
@@ -347,8 +349,23 @@ export function checkGameOver(playerOne, playerTwo, modalDiv, messageDiv) {
 // Game Over modal
 const gameOverModal = document.querySelector(".modal-container");
 const winnerMsg = document.getElementById("winner-message");
+
 const restartBtn = document.getElementById("restart");
-restartBtn.addEventListener("click", () => {
+restartBtn.addEventListener("click", restart);
+
+function restart() {
+    infoMsg.textContent = "";
+    playerOneGameboardDiv.replaceChildren();
+    playerTwoGameboardDiv.replaceChildren();
     gameOverModal.style.display = "none";
+    playerOneName.textContent = "";
+    playerTwoName.textContent = "";
+    previewAngle = 0;
+    isPlayerTurn = true;
+    draggedShip;
+    everyShipInContainer.forEach((ship) => (ship.style.display = "flex"));
+    everyShipInContainer.forEach(
+        (ship) => (ship.style.transform = "rotate(0deg")
+    );
     newGame();
-});
+}

@@ -63,7 +63,6 @@ main {
 
 .name {
     color: white;
-
     font-size: 2rem;
 }
 
@@ -95,11 +94,11 @@ main {
     margin: 5px;
 }
 
-.enter-name-modal button {
+button {
     width: 70px;
     height: 25px;
-
     font-size: 1em;
+    font-weight: 800;
 }
 
 .enter-name-modal input {
@@ -111,7 +110,6 @@ main {
 
 label {
     font-size: 1em;
-
     color: white;
     display: flex;
     justify-content: center;
