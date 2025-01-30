@@ -78,6 +78,11 @@ main {
     cursor: crosshair;
 }
 
+.hit {
+    border: 3px solid red;
+    background-color: rgb(224, 150, 150);
+}
+
 .enter-name-modal {
     display: none;
     position: absolute;
@@ -177,7 +182,7 @@ label {
 }
 
 .enemy-cell:hover {
-    background-color: rgb(224, 224, 224);
+    background-color: rgb(197, 197, 197);
 }
 
 .info {

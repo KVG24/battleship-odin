@@ -92,8 +92,8 @@ function dropShip(e, player) {
     e.preventDefault();
     const targetCell = e.target;
     const shipId = draggedShip.id;
-    let x = parseInt(targetCell.dataset.x);
-    let y = parseInt(targetCell.dataset.y);
+    let y = parseInt(targetCell.dataset.x);
+    let x = parseInt(targetCell.dataset.y);
     let direction = previewAngle === 0 ? "horizontal" : "vertical";
 
     if (!shipId) return;
@@ -155,8 +155,8 @@ function attachPreviewShipEventListeners(player) {
 
 function renderPreviewGameboard(player, playerGameboard) {
     playerGameboard.replaceChildren();
-    player.gameboard.board.forEach((subarray, x) => {
-        subarray.forEach((cell, y) => {
+    player.gameboard.board.forEach((subarray, y) => {
+        subarray.forEach((cell, x) => {
             const div = document.createElement("div");
 
             div.classList.add("cell");
@@ -193,11 +193,11 @@ function renderGameboards(
     playerTwo,
     playerTwoGameboard
 ) {
-    const playerOneGameboardDiv = playerOne.gameboard.board;
-    const playerTwoGameboardDiv = playerTwo.gameboard.board;
+    const playerOneGameboardDivArray = playerOne.gameboard.board;
+    const playerTwoGameboardDivArray = playerTwo.gameboard.board;
 
-    playerOneGameboardDiv.forEach((subarray, x) => {
-        subarray.forEach((cell, y) => {
+    playerOneGameboardDivArray.forEach((subarray, y) => {
+        subarray.forEach((cell, x) => {
             const div = document.createElement("div");
 
             div.classList.add("cell");
@@ -219,8 +219,8 @@ function renderGameboards(
             playerOneGameboard.appendChild(div);
         });
     });
-    playerTwoGameboardDiv.forEach((subarray, x) => {
-        subarray.forEach((cell, y) => {
+    playerTwoGameboardDivArray.forEach((subarray, y) => {
+        subarray.forEach((cell, x) => {
             const div = document.createElement("div");
 
             div.classList.add("cell");
@@ -247,17 +247,23 @@ function renderGameboards(
                 playerTwoGameboard.replaceChildren();
 
                 const prevArray = playerTwo.gameboard.missedAttacks.length;
-                playerTwo.gameboard.receiveAttack(x, y);
+                playerTwo.gameboard.receiveAttack(y, x);
                 renderGameboards(
                     playerOne,
                     playerOneGameboard,
                     playerTwo,
                     playerTwoGameboard
                 );
-                const newArray = playerTwo.gameboard.missedAttacks.length;
+
+                const attackedCell = playerTwoGameboardDiv.querySelector(
+                    `[data-x='${x}'][data-y='${y}']`
+                );
+                attackedCell.classList.add("hit");
+                setTimeout(() => attackedCell.classList.remove("hit"), 500);
 
                 infoMsg.textContent = `${playerOne.name} hit ${playerTwo.name}'s ship. ${playerOne.name} aiming to fire again`;
 
+                const newArray = playerTwo.gameboard.missedAttacks.length;
                 if (newArray > prevArray) {
                     isPlayerTurn = false;
 
@@ -307,10 +313,16 @@ function computerTurn(
         playerTwo,
         playerTwoGameboard
     );
-    const newArray = playerOne.gameboard.missedAttacks.length;
+    // Highlight attacked cell
+    const attackedCell = playerOneGameboardDiv.querySelector(
+        `[data-x='${x}'][data-y='${y}']`
+    );
+    attackedCell.classList.add("hit");
+    setTimeout(() => attackedCell.classList.remove("hit"), 500);
 
     infoMsg.textContent = `${playerTwo.name} missed. ${playerOne.name} aiming...`;
 
+    const newArray = playerOne.gameboard.missedAttacks.length;
     if (newArray == prevArray) {
         infoMsg.textContent = `${playerTwo.name} hit ${playerOne.name}'s ship. ${playerTwo.name} aiming to fire again`;
         setTimeout(() => {
