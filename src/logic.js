@@ -1,4 +1,4 @@
-import { Player, Ship } from "./classes";
+import { Player, Ship, Gameboard } from "./classes";
 
 const playerOneName = document.getElementById("player-one-name");
 const playerTwoName = document.getElementById("player-two-name");
@@ -20,6 +20,7 @@ const playerGameboardPreview = document.querySelector(
 );
 const previewCells = playerGameboardPreview.children;
 const flipButton = document.getElementById("flip-button");
+const randomButton = document.getElementById("random-button");
 const startButton = document.getElementById("start-button");
 const placementErrorMsg = document.getElementById("placement-error");
 const everyShipInContainer = document.querySelectorAll(".ship");
@@ -59,6 +60,18 @@ export function newGame() {
         renderPreviewGameboard(playerOne, playerGameboardPreview);
         attachPreviewShipEventListeners(playerOne);
         flipButton.addEventListener("click", flipPreviewShips);
+        randomButton.addEventListener("click", () => {
+            playerOne.gameboard = new Gameboard();
+            everyShipInContainer.forEach(
+                (ship) => (ship.style.display = "none")
+            );
+            placeShipRandomly(playerOne, new Ship("Corvette", 2));
+            placeShipRandomly(playerOne, new Ship("Submarine", 3));
+            placeShipRandomly(playerOne, new Ship("Cruiser", 3));
+            placeShipRandomly(playerOne, new Ship("Frigate", 4));
+            placeShipRandomly(playerOne, new Ship("Carrier", 5));
+            renderPreviewGameboard(playerOne, playerGameboardPreview);
+        });
         startButton.addEventListener("click", () => {
             gameBoardPreviewModal.style.display = "none";
             playerOneName.textContent = playerOne.name;
@@ -338,9 +351,11 @@ function getRandomCoordinatesAndDirection() {
 // Game over logic
 function checkGameOver(playerOne, playerTwo, modalDiv, messageDiv) {
     if (playerTwo.gameboard.allShipsSunk()) {
+        setTimeout(() => (infoMsg.textContent = ""), 0);
         modalDiv.style.display = "block";
         messageDiv.textContent = `${playerOne.name} won!`;
     } else if (playerOne.gameboard.allShipsSunk()) {
+        setTimeout(() => (infoMsg.textContent = ""), 0);
         modalDiv.style.display = "block";
         messageDiv.textContent = `${playerTwo.name} won!`;
     }

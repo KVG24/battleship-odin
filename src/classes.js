@@ -16,7 +16,7 @@ export class Ship {
     }
 }
 
-class Gameboard {
+export class Gameboard {
     constructor() {
         this.missedAttacks = [];
         this.ships = [];
