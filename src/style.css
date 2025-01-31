@@ -83,6 +83,10 @@ main {
     background-color: rgb(224, 150, 150);
 }
 
+.enemy-cell:hover {
+    background-color: rgb(224, 150, 150);
+}
+
 .enter-name-modal {
     display: none;
     position: absolute;
@@ -179,10 +183,6 @@ label {
 
 .ship {
     display: flex;
-}
-
-.enemy-cell:hover {
-    background-color: rgb(197, 197, 197);
 }
 
 .info {
