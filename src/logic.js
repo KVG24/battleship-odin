@@ -146,10 +146,52 @@ function dropShip(e, player) {
 
 function attachPreviewShipEventListeners(player) {
     Array.from(previewCells).forEach((cell) => {
-        cell.addEventListener("dragover", (e) => e.preventDefault());
+        cell.addEventListener("dragover", (e) => {
+            previewOnDragover(e, player);
+        });
         cell.addEventListener("drop", (e) => {
             dropShip(e, player);
         });
+    });
+}
+
+function previewOnDragover(e, player) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    const targetCell = e.target;
+    if (!draggedShip) return;
+
+    const shipId = draggedShip.id;
+    let x = parseInt(targetCell.dataset.x);
+    let y = parseInt(targetCell.dataset.y);
+    let direction = previewAngle === 0 ? "horizontal" : "vertical";
+
+    let shipLength = {
+        corvette: 2,
+        submarine: 3,
+        cruiser: 3,
+        frigate: 4,
+        carrier: 5,
+    }[shipId];
+
+    if (!shipLength) return;
+
+    let targetDivs = Array.from(previewCells).filter((cell) => {
+        return direction === "horizontal"
+            ? cell.dataset.y == y &&
+                  cell.dataset.x >= x &&
+                  cell.dataset.x < x + shipLength
+            : cell.dataset.x == x &&
+                  cell.dataset.y >= y &&
+                  cell.dataset.y < y + shipLength;
+    });
+
+    Array.from(previewCells).forEach((cell) =>
+        cell.classList.remove("hover", "invalid")
+    );
+
+    targetDivs.forEach((div) => {
+        div.classList.add("hover");
     });
 }
 
