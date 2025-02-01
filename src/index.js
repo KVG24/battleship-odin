@@ -8,4 +8,3 @@ newGame();
 
 // To Do:
 // - add smart computer moves
-// - clean up all js code, add separate DOM handling module

@@ -1,4 +1,11 @@
 import { Player, Ship, Gameboard } from "./classes";
+import { placeShipRandomly } from "./randomPlacement";
+import {
+    renderPreviewGameboard,
+    flipPreviewShips,
+    attachPreviewShipEventListeners,
+    defineDraggedShip,
+} from "./shipPlacementModal";
 import gameOverImg from "./images/gameover.jpeg";
 
 const playerOneName = document.getElementById("player-one-name");
@@ -20,21 +27,13 @@ const gameBoardPreviewModal = document.querySelector(
 const playerGameboardPreview = document.querySelector(
     ".player-gameboard-preview"
 );
-const previewCells = playerGameboardPreview.children;
+const placementErrorMsg = document.getElementById("placement-error");
 const flipButton = document.getElementById("flip-button");
 const randomButton = document.getElementById("random-button");
 const startButton = document.getElementById("start-button");
-const placementErrorMsg = document.getElementById("placement-error");
 const everyShipInContainer = document.querySelectorAll(".ship");
-const corvetteShipDiv = document.getElementById("corvette");
-const submarineShipDiv = document.getElementById("submarine");
-const cruiserShipDiv = document.getElementById("cruiser");
-const frigateShipDiv = document.getElementById("frigate");
-const carrierShipDiv = document.getElementById("carrier");
 
 let isPlayerTurn = true;
-let previewAngle = 0;
-let draggedShip;
 
 let playerOne = new Player(`Human`, "real");
 let playerTwo = new Player("Computer", "computer");
@@ -57,9 +56,7 @@ export function newGame() {
         // Ship placement modal
         gameBoardPreviewModal.style.display = "block";
         everyShipInContainer.forEach((ship) => {
-            ship.addEventListener("dragstart", (e) => {
-                draggedShip = e.target;
-            });
+            ship.addEventListener("dragstart", defineDraggedShip);
         });
         renderPreviewGameboard(playerOne, playerGameboardPreview);
         attachPreviewShipEventListeners(playerOne);
@@ -77,6 +74,14 @@ export function newGame() {
             renderPreviewGameboard(playerOne, playerGameboardPreview);
         });
         startButton.addEventListener("click", () => {
+            if (playerOne.gameboard.ships.length < 5) {
+                startButton.style.border = "3px solid red";
+                setTimeout(() => (startButton.style.border = ""), 300);
+                placementErrorMsg.style.display = "block";
+                placementErrorMsg.textContent = "Place ALL ships";
+                return;
+            }
+
             gameBoardPreviewModal.style.display = "none";
             playerOneName.textContent = playerOne.name;
             playerTwoName.textContent = playerTwo.name;
@@ -91,147 +96,6 @@ export function newGame() {
             );
         });
     });
-}
-
-function dropShip(e, player) {
-    e.preventDefault();
-    const targetCell = e.target;
-    const shipId = draggedShip.id;
-    let y = parseInt(targetCell.dataset.x);
-    let x = parseInt(targetCell.dataset.y);
-    let direction = previewAngle === 0 ? "horizontal" : "vertical";
-
-    if (!shipId) return;
-
-    try {
-        if (shipId === "corvette") {
-            player.gameboard.placeShip(
-                new Ship("Corvette", 2),
-                x,
-                y,
-                direction
-            );
-            corvetteShipDiv.style.display = "none";
-            placementErrorMsg.style.display = "none";
-        }
-        if (shipId === "submarine") {
-            player.gameboard.placeShip(
-                new Ship("Submarine", 3),
-                x,
-                y,
-                direction
-            );
-            submarineShipDiv.style.display = "none";
-            placementErrorMsg.style.display = "none";
-        }
-        if (shipId === "cruiser") {
-            player.gameboard.placeShip(new Ship("Cruiser", 3), x, y, direction);
-            cruiserShipDiv.style.display = "none";
-            placementErrorMsg.style.display = "none";
-        }
-        if (shipId === "frigate") {
-            player.gameboard.placeShip(new Ship("Frigate", 4), x, y, direction);
-            frigateShipDiv.style.display = "none";
-            placementErrorMsg.style.display = "none";
-        }
-        if (shipId === "carrier") {
-            player.gameboard.placeShip(new Ship("Carrier", 5), x, y, direction);
-            carrierShipDiv.style.display = "none";
-            placementErrorMsg.style.display = "none";
-        }
-
-        renderPreviewGameboard(player, playerGameboardPreview);
-        attachPreviewShipEventListeners(player);
-    } catch (error) {
-        console.error("Invalid placement:", error.message);
-        placementErrorMsg.style.display = "block";
-        placementErrorMsg.textContent = "Invalid placement";
-    }
-}
-
-function attachPreviewShipEventListeners(player) {
-    Array.from(previewCells).forEach((cell) => {
-        cell.addEventListener("dragover", (e) => {
-            previewOnDragover(e, player);
-        });
-        cell.addEventListener("drop", (e) => {
-            dropShip(e, player);
-        });
-    });
-}
-
-function previewOnDragover(e, player) {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
-    const targetCell = e.target;
-    if (!draggedShip) return;
-
-    const shipId = draggedShip.id;
-    let x = parseInt(targetCell.dataset.x);
-    let y = parseInt(targetCell.dataset.y);
-    let direction = previewAngle === 0 ? "horizontal" : "vertical";
-
-    let shipLength = {
-        corvette: 2,
-        submarine: 3,
-        cruiser: 3,
-        frigate: 4,
-        carrier: 5,
-    }[shipId];
-
-    if (!shipLength) return;
-
-    let targetDivs = Array.from(previewCells).filter((cell) => {
-        return direction === "horizontal"
-            ? cell.dataset.y == y &&
-                  cell.dataset.x >= x &&
-                  cell.dataset.x < x + shipLength
-            : cell.dataset.x == x &&
-                  cell.dataset.y >= y &&
-                  cell.dataset.y < y + shipLength;
-    });
-
-    Array.from(previewCells).forEach((cell) =>
-        cell.classList.remove("hover", "invalid")
-    );
-
-    targetDivs.forEach((div) => {
-        div.classList.add("hover");
-    });
-}
-
-function renderPreviewGameboard(player, playerGameboard) {
-    playerGameboard.replaceChildren();
-    player.gameboard.board.forEach((subarray, y) => {
-        subarray.forEach((cell, x) => {
-            const div = document.createElement("div");
-
-            div.classList.add("cell");
-
-            if (cell === null) {
-                div.textContent = "";
-            } else if (typeof cell === "object") {
-                div.style.backgroundColor = "gray";
-            } else if (cell === "miss") {
-                div.textContent = "🫧";
-            } else if (cell === "hit") {
-                div.textContent = "🔥";
-                div.style.backgroundColor = "gray";
-            }
-
-            div.dataset.x = x;
-            div.dataset.y = y;
-
-            playerGameboard.appendChild(div);
-        });
-    });
-}
-
-function flipPreviewShips() {
-    previewAngle = previewAngle === 0 ? 90 : 0;
-    everyShipInContainer.forEach(
-        (div) => (div.style.transform = `rotate(${previewAngle}deg)`)
-    );
 }
 
 function renderGameboards(
@@ -293,6 +157,7 @@ function renderGameboards(
                     playerTwoGameboard
                 );
 
+                // Highlight attacked cell
                 const attackedCell = playerTwoGameboardDiv.querySelector(
                     `[data-x='${x}'][data-y='${y}']`
                 );
@@ -322,6 +187,31 @@ function renderGameboards(
             playerTwoGameboard.appendChild(div);
         });
     });
+
+    // Highlight sunken ships
+    const boards = [
+        { player: playerOne, gameboardDiv: playerOneGameboard },
+        { player: playerTwo, gameboardDiv: playerTwoGameboard },
+    ];
+
+    boards.forEach(({ player, gameboardDiv }) => {
+        player.gameboard.ships.forEach((shipData) => {
+            const ship = shipData.ship;
+            if (ship.isSunk()) {
+                shipData.coordinates.forEach((coord) => {
+                    const y = coord[0];
+                    const x = coord[1];
+                    const sunkenShipCell = gameboardDiv.querySelector(
+                        `.cell[data-x="${x}"][data-y="${y}"]`
+                    );
+                    if (sunkenShipCell) {
+                        sunkenShipCell.style.backgroundColor = "darkred";
+                    }
+                });
+            }
+        });
+    });
+
     checkGameOver(playerOne, playerTwo, gameOverModalContainer, winnerMsg);
 }
 
@@ -369,6 +259,7 @@ function computerTurn(
 
     // Attack again if hit was successful (check if missed attacks array increased in size)
     if (newArray == prevArray) {
+        isPlayerTurn = false;
         infoMsg.textContent = `${playerTwo.name} hit ${playerOne.name}'s ship. ${playerTwo.name} aiming to fire again`;
         setTimeout(() => {
             computerTurn(
@@ -377,43 +268,21 @@ function computerTurn(
                 playerTwo,
                 playerTwoGameboard
             );
-        }, 2000);
+        }, 1000);
     }
 
     isPlayerTurn = true;
-}
-
-function placeShipRandomly(player, ship) {
-    let placed = false;
-
-    while (!placed) {
-        const { x, y, direction } = getRandomCoordinatesAndDirection();
-
-        try {
-            player.gameboard.placeShip(ship, x, y, direction);
-            placed = true;
-        } catch (error) {
-            continue;
-        }
-    }
-}
-
-function getRandomCoordinatesAndDirection() {
-    const direction = Math.random() > 0.5 ? "horizontal" : "vertical";
-    const x = Math.floor(Math.random() * 10);
-    const y = Math.floor(Math.random() * 10);
-    return { x, y, direction };
 }
 
 // Game over logic
 function checkGameOver(playerOne, playerTwo, modalDiv, messageDiv) {
     if (playerTwo.gameboard.allShipsSunk()) {
         setTimeout(() => (infoMsg.textContent = ""), 0);
-        modalDiv.style.display = "flex";
+        setTimeout(() => (modalDiv.style.display = "flex"), 500);
         messageDiv.textContent = `${playerOne.name} won!`;
     } else if (playerOne.gameboard.allShipsSunk()) {
         setTimeout(() => (infoMsg.textContent = ""), 0);
-        modalDiv.style.display = "flex";
+        setTimeout(() => (modalDiv.style.display = "flex"), 500);
         messageDiv.textContent = `${playerTwo.name} won!`;
     }
 }
@@ -429,18 +298,11 @@ const restartBtn = document.getElementById("restart");
 restartBtn.addEventListener("click", restart);
 
 function restart() {
-    infoMsg.textContent = "";
     playerOneGameboardDiv.replaceChildren();
     playerTwoGameboardDiv.replaceChildren();
     gameOverModalContainer.style.display = "none";
-    playerOneName.textContent = "";
     playerTwoName.textContent = "";
-    previewAngle = 0;
     isPlayerTurn = true;
-    draggedShip = undefined;
     everyShipInContainer.forEach((ship) => (ship.style.display = "flex"));
-    everyShipInContainer.forEach(
-        (ship) => (ship.style.transform = "rotate(0deg")
-    );
     newGame();
 }

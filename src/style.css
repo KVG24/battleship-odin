@@ -175,7 +175,6 @@ label {
 }
 
 #placement-error {
-    display: none;
     position: absolute;
     top: 66%;
     left: 80%;
