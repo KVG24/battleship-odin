@@ -45,62 +45,34 @@ export class Gameboard {
     }
 
     isPlacementValid(ship, startX, startY, direction) {
-        if (direction === "horizontal") {
-            if (startY + ship.length > 10) {
-                return false;
-            }
-        } else if (direction === "vertical") {
-            if (startX + ship.length > 10) {
-                return false;
-            }
-        } else {
-            return false;
-        }
-
-        const coordinates = [];
         for (let i = 0; i < ship.length; i++) {
-            let x, y;
-            if (direction === "horizontal") {
-                x = startX;
-                y = startY + i;
-            } else {
-                x = startX + i;
-                y = startY;
-            }
+            let x = direction === "horizontal" ? startX : startX + i;
+            let y = direction === "horizontal" ? startY + i : startY;
 
             if (this.board[x][y] !== null) {
                 return false;
             }
 
-            coordinates.push([x, y]);
-        }
+            // Neighbor check
+            for (let dx = -1; dx <= 1; dx++) {
+                for (let dy = -1; dy <= 1; dy++) {
+                    if (dx === 0 && dy === 0) continue;
 
-        // Check neighboring cells
-        for (let [x, y] of coordinates) {
-            for (let i = -1; i <= 1; i++) {
-                for (let j = -1; j <= 1; j++) {
-                    const checkX = x + i;
-                    const checkY = y + j;
+                    const nx = x + dx;
+                    const ny = y + dy;
 
-                    // Ensure we are within bounds of the board
                     if (
-                        checkX >= 0 &&
-                        checkX < 10 &&
-                        checkY >= 0 &&
-                        checkY < 10
+                        nx >= 0 &&
+                        nx < 10 &&
+                        ny >= 0 &&
+                        ny < 10 &&
+                        this.board[nx][ny] !== null
                     ) {
-                        // Skip checking the ship's own coordinates
-                        if (i === 0 && j === 0) continue;
-
-                        // If the surrounding cell is not empty, the placement is invalid
-                        if (this.board[checkX][checkY] !== null) {
-                            return false;
-                        }
+                        return false;
                     }
                 }
             }
         }
-
         return true;
     }
 

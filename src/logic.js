@@ -1,10 +1,12 @@
 import { Player, Ship, Gameboard } from "./classes";
+import gameOverImg from "./images/gameover.jpeg";
 
 const playerOneName = document.getElementById("player-one-name");
 const playerTwoName = document.getElementById("player-two-name");
 const playerOneGameboardDiv = document.getElementById("player-one-gameboard");
 const playerTwoGameboardDiv = document.getElementById("player-two-gameboard");
 const infoMsg = document.getElementById("info-msg");
+const names = document.querySelector(".name");
 
 // New game modal
 const enterNameModal = document.querySelector(".enter-name-modal");
@@ -39,6 +41,8 @@ let playerTwo = new Player("Computer", "computer");
 
 export function newGame() {
     // Enter name modal
+    names.style.display = "none";
+    infoMsg.style.display = "none";
     enterNameModal.style.display = "flex";
     enterNameButton.addEventListener("click", () => {
         enterNameModal.style.display = "none";
@@ -76,6 +80,7 @@ export function newGame() {
             gameBoardPreviewModal.style.display = "none";
             playerOneName.textContent = playerOne.name;
             playerTwoName.textContent = playerTwo.name;
+            names.style.display = "block";
             playerOneGameboardDiv.replaceChildren();
             playerTwoGameboardDiv.replaceChildren();
             renderGameboards(
@@ -238,22 +243,18 @@ function renderGameboards(
     const playerOneGameboardDivArray = playerOne.gameboard.board;
     const playerTwoGameboardDivArray = playerTwo.gameboard.board;
 
+    // Player one / Human gameboard render
     playerOneGameboardDivArray.forEach((subarray, y) => {
         subarray.forEach((cell, x) => {
             const div = document.createElement("div");
 
             div.classList.add("cell");
 
-            if (cell === null) {
-                div.textContent = "";
-            } else if (typeof cell === "object") {
+            div.textContent =
+                cell === "miss" ? "🫧" : cell === "hit" ? "🔥" : "";
+            if (cell === "hit") div.style.backgroundColor = "gray";
+            if (cell && typeof cell === "object")
                 div.style.backgroundColor = "gray";
-            } else if (cell === "miss") {
-                div.textContent = "🫧";
-            } else if (cell === "hit") {
-                div.textContent = "🔥";
-                div.style.backgroundColor = "gray";
-            }
 
             div.dataset.x = x;
             div.dataset.y = y;
@@ -261,6 +262,8 @@ function renderGameboards(
             playerOneGameboard.appendChild(div);
         });
     });
+
+    // Player Two / Computer gameboard render
     playerTwoGameboardDivArray.forEach((subarray, y) => {
         subarray.forEach((cell, x) => {
             const div = document.createElement("div");
@@ -268,16 +271,9 @@ function renderGameboards(
             div.classList.add("cell");
             div.classList.add("enemy-cell");
 
-            if (cell === null) {
-                div.textContent = "";
-            } else if (cell === "miss") {
-                div.textContent = "🫧";
-            } else if (cell === "hit") {
-                div.textContent = "🔥";
-                div.style.backgroundColor = "gray";
-            } else if (typeof cell === "object") {
-                div.style.backgroundColor = "gray";
-            } // remove last "else if" after testing
+            div.textContent =
+                cell === "miss" ? "🫧" : cell === "hit" ? "🔥" : "";
+            if (cell === "hit") div.style.backgroundColor = "gray";
 
             div.dataset.x = x;
             div.dataset.y = y;
@@ -303,8 +299,10 @@ function renderGameboards(
                 attackedCell.classList.add("hit");
                 setTimeout(() => attackedCell.classList.remove("hit"), 500);
 
+                infoMsg.style.display = "block";
                 infoMsg.textContent = `${playerOne.name} hit ${playerTwo.name}'s ship. ${playerOne.name} aiming to fire again`;
 
+                // Attack again if hit was successful (check if missed attacks array increased in size)
                 const newArray = playerTwo.gameboard.missedAttacks.length;
                 if (newArray > prevArray) {
                     isPlayerTurn = false;
@@ -324,7 +322,7 @@ function renderGameboards(
             playerTwoGameboard.appendChild(div);
         });
     });
-    checkGameOver(playerOne, playerTwo, gameOverModal, winnerMsg);
+    checkGameOver(playerOne, playerTwo, gameOverModalContainer, winnerMsg);
 }
 
 // Computer's logic
@@ -336,6 +334,7 @@ function computerTurn(
 ) {
     let x, y;
 
+    // Attack random coordinates
     do {
         x = Math.floor(Math.random() * 10);
         y = Math.floor(Math.random() * 10);
@@ -348,6 +347,7 @@ function computerTurn(
     playerTwoGameboard.replaceChildren();
 
     const prevArray = playerOne.gameboard.missedAttacks.length;
+
     playerOne.gameboard.receiveAttack(y, x);
     renderGameboards(
         playerOne,
@@ -362,9 +362,12 @@ function computerTurn(
     attackedCell.classList.add("hit");
     setTimeout(() => attackedCell.classList.remove("hit"), 500);
 
+    infoMsg.style.display = "block";
     infoMsg.textContent = `${playerTwo.name} missed. ${playerOne.name} aiming...`;
 
     const newArray = playerOne.gameboard.missedAttacks.length;
+
+    // Attack again if hit was successful (check if missed attacks array increased in size)
     if (newArray == prevArray) {
         infoMsg.textContent = `${playerTwo.name} hit ${playerOne.name}'s ship. ${playerTwo.name} aiming to fire again`;
         setTimeout(() => {
@@ -406,18 +409,21 @@ function getRandomCoordinatesAndDirection() {
 function checkGameOver(playerOne, playerTwo, modalDiv, messageDiv) {
     if (playerTwo.gameboard.allShipsSunk()) {
         setTimeout(() => (infoMsg.textContent = ""), 0);
-        modalDiv.style.display = "block";
+        modalDiv.style.display = "flex";
         messageDiv.textContent = `${playerOne.name} won!`;
     } else if (playerOne.gameboard.allShipsSunk()) {
         setTimeout(() => (infoMsg.textContent = ""), 0);
-        modalDiv.style.display = "block";
+        modalDiv.style.display = "flex";
         messageDiv.textContent = `${playerTwo.name} won!`;
     }
 }
 
 // Game Over modal
-const gameOverModal = document.querySelector(".modal-container");
+const gameOverModalContainer = document.querySelector(
+    ".game-over-modal-container"
+);
 const winnerMsg = document.getElementById("winner-message");
+gameOverModalContainer.style.backgroundImage = `url(${gameOverImg})`;
 
 const restartBtn = document.getElementById("restart");
 restartBtn.addEventListener("click", restart);
@@ -426,12 +432,12 @@ function restart() {
     infoMsg.textContent = "";
     playerOneGameboardDiv.replaceChildren();
     playerTwoGameboardDiv.replaceChildren();
-    gameOverModal.style.display = "none";
+    gameOverModalContainer.style.display = "none";
     playerOneName.textContent = "";
     playerTwoName.textContent = "";
     previewAngle = 0;
     isPlayerTurn = true;
-    draggedShip;
+    draggedShip = undefined;
     everyShipInContainer.forEach((ship) => (ship.style.display = "flex"));
     everyShipInContainer.forEach(
         (ship) => (ship.style.transform = "rotate(0deg")
