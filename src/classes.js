@@ -91,6 +91,14 @@ export class Gameboard {
     allShipsSunk() {
         return this.ships.every(({ ship }) => ship.isSunk());
     }
+
+    reset() {
+        this.missedAttacks = [];
+        this.ships = [];
+        this.board = Array(10)
+            .fill(null)
+            .map(() => Array(10).fill(null));
+    }
 }
 
 export class Player {

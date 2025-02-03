@@ -40,12 +40,15 @@ let playerTwo = new Player("Computer", "computer");
 
 export function newGame() {
     // Enter name modal
-    names.style.display = "none";
+    playerOneName.style.display = "none";
+    playerTwoName.style.display = "none";
     infoMsg.style.display = "none";
     enterNameModal.style.display = "flex";
     enterNameButton.addEventListener("click", () => {
         enterNameModal.style.display = "none";
-        playerOne = new Player(`${inputName.value}`, "real");
+        if (inputName.value) {
+            playerOne = new Player(`${inputName.value}`, "real");
+        }
         playerTwo = new Player("Computer", "computer");
         placeShipRandomly(playerTwo, new Ship("Corvette", 2));
         placeShipRandomly(playerTwo, new Ship("Submarine", 3));
@@ -85,7 +88,8 @@ export function newGame() {
             gameBoardPreviewModal.style.display = "none";
             playerOneName.textContent = playerOne.name;
             playerTwoName.textContent = playerTwo.name;
-            names.style.display = "block";
+            playerOneName.style.display = "block";
+            playerTwoName.style.display = "block";
             playerOneGameboardDiv.replaceChildren();
             playerTwoGameboardDiv.replaceChildren();
             renderGameboards(
@@ -298,6 +302,7 @@ const restartBtn = document.getElementById("restart");
 restartBtn.addEventListener("click", restart);
 
 function restart() {
+    playerOne.gameboard.reset();
     playerOneGameboardDiv.replaceChildren();
     playerTwoGameboardDiv.replaceChildren();
     gameOverModalContainer.style.display = "none";
